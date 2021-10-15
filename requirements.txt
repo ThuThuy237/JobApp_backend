@@ -11,12 +11,13 @@ Deprecated==1.2.13
 Django==3.2.6
 django-braces==1.14.0
 django-ckeditor==6.1.0
+django-cors-headers==3.10.0
 django-hosts==4.0
 django-js-asset==1.2.2
 django-oauth-toolkit==1.5.0
 django-phonenumber-field==5.2.0
-django-rest-framework-social-oauth2==1.1.0
 djangorestframework==3.12.4
+drf-social-oauth2==1.0.9
 idna==3.2
 ipython==7.26.0
 ipython-genutils==0.2.0
