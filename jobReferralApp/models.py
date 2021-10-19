@@ -7,7 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class User(AbstractUser):
-    avatar = models.ImageField(upload_to='uploads/avatar/%Y/%m')
+    avatar = models.ImageField(upload_to='static/uploads/avatar/%Y/%m')
 
     def __str__(self):
         return self.username
@@ -20,21 +20,36 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+class Location(models.Model):
+    country = models.CharField(null=False, max_length=255)
+    city = models.CharField(max_length=255, null=False, blank=True)
+
+    class Meta:
+        unique_together = [['country', 'city']]
+
+    def __str__(self):
+        return self.city and self.country
 
 class Post(models.Model):
     title = models.CharField(null=False, max_length=255)
+    subtitle = models.CharField(null=False, max_length=255)
     description = RichTextField()
-    image = models.ImageField(upload_to='uploads/images/%Y/%m')
+    image = models.ImageField(upload_to='static/uploads/images/%Y/%m')
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
     category = models.ForeignKey(Category, related_name="post", on_delete=models.SET_NULL, null=True)
+    location = models.ForeignKey(Location, related_name="post", on_delete=models.CASCADE, null=False)
+    Address = models.CharField(null=False, max_length=255)
     employer = models.ForeignKey('Employer', related_name="post", on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag', blank=True)
     jobApplicant = models.ManyToManyField('JobApplicant', related_name='post',through="Apply" )
 
     def __str__(self):
         return self.title
+    
+    class Meta:
+        ordering = ['-created_date']
 
 
 class Employer(models.Model):
@@ -50,7 +65,7 @@ class Employer(models.Model):
 
 
 class JobApplicant(models.Model):
-    cv = models.FileField(upload_to='uploads/cv/%Y/%m', null=True)
+    cv = models.FileField(upload_to='static/uploads/cv/%Y/%m', null=True)
     cover_letter = models.FileField(upload_to='uploads/coverLetter/%Y/%m', null=True)
     phone = PhoneNumberField(unique = True, null = False, blank = False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

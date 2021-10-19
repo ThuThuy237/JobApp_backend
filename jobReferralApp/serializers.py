@@ -1,5 +1,6 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from .models import Post, Tag, Employer, User
+from .models import *
 
 
 class UserSerializer(ModelSerializer):
@@ -17,11 +18,20 @@ class UserSerializer(ModelSerializer):
 
         return user
 
+class LocationSerializers(serializers.RelatedField):
+    def to_representation(self, value):
+       return '%s, %s' % (value.city, value.country)
 
 class PostSerializers(ModelSerializer):
+    location = serializers.SerializerMethodField('loca')
+    created_date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+
+    def loca(self, post):
+        return '%s, %s' %(post.location.city, post.location.country)
+
     class Meta:
         model = Post
-        fields = ["id", "title", "image", "created_date", "category"]
+        fields = ["id", "title", "image", "created_date", "category", "location", "description", "subtitle"]
 
 
 class TagSerializers(ModelSerializer):

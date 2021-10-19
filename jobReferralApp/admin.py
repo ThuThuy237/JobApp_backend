@@ -5,16 +5,19 @@ from django.template.response import TemplateResponse
 from django.utils.html import mark_safe
 from django import forms
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
-from .models import Category, Post, Tag, Employer, User
+from .models import *
 from django.urls import path
 
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ["name", "description"]
+#
+# class LocationAdmin(admin.ModelAdmin):
+#     list_display = ["country", "city"]
 
 
 class PostForm(forms.ModelForm):
-    descriptions = forms.CharField(widget=CKEditorUploadingWidget)
+    # descriptions = forms.CharField(widget=CKEditorUploadingWidget)
 
     class Meta:
         models = Post
@@ -79,8 +82,5 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(Tag)
 admin.site.register(Employer, EmployerAdmin)
 admin.site.register(User)
+admin.site.register(Location)
 admin.site.register(Permission)
-#admin_site.register(Category, CategoryAdmin)
-#admin_site.register(Post, PostAdmin)
-#admin_site.register(Tag)
-#admin_site.register(Employer, EmployerAdmin)

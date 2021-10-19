@@ -21,7 +21,6 @@ urlpatterns = [
     path('', include('jobReferralApp.urls')),
     path('admin/', admin.site.urls),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    #path('admin/', admin_site.urls),
     re_path(r'^ckeditor/', include('ckeditor_uploader.urls')),
     re_path(r'^auth/', include('drf_social_oauth2.urls', namespace='drf')),
 ]
