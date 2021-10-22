@@ -74,6 +74,7 @@ admin_site = PostAppAdminSite('myjob')
 
 class EmployerAdmin(admin.ModelAdmin):
     inlines = (PostInline,)
+    list_display = ["company_name", "is_accepted"]
 
 
 # Register your models here.

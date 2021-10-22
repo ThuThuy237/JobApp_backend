@@ -7,7 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class User(AbstractUser):
-    avatar = models.ImageField(upload_to='static/uploads/avatar/%Y/%m')
+    avatar = models.ImageField(upload_to='static/uploads/avatar/%Y/%m', null=True)
 
     def __str__(self):
         return self.username
@@ -20,6 +20,10 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
+
 class Location(models.Model):
     country = models.CharField(null=False, max_length=255)
     city = models.CharField(max_length=255, null=False, blank=True)
@@ -30,6 +34,9 @@ class Location(models.Model):
     def __str__(self):
         return self.city and self.country
 
+    class Meta:
+        ordering = ['city']
+
 class Post(models.Model):
     title = models.CharField(null=False, max_length=255)
     subtitle = models.CharField(null=False, max_length=255)
@@ -38,9 +45,10 @@ class Post(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
+    salary = models.IntegerField(null=True, default=0)
     category = models.ForeignKey(Category, related_name="post", on_delete=models.SET_NULL, null=True)
     location = models.ForeignKey(Location, related_name="post", on_delete=models.CASCADE, null=False)
-    Address = models.CharField(null=False, max_length=255)
+    address = models.CharField(null=False, max_length=255)
     employer = models.ForeignKey('Employer', related_name="post", on_delete=models.CASCADE)
     tags = models.ManyToManyField('Tag', blank=True)
     jobApplicant = models.ManyToManyField('JobApplicant', related_name='post',through="Apply" )
@@ -63,6 +71,8 @@ class Employer(models.Model):
     def __str__(self):
         return self.company_name
 
+    class Meta:
+        ordering = ['is_accepted']
 
 class JobApplicant(models.Model):
     cv = models.FileField(upload_to='static/uploads/cv/%Y/%m', null=True)

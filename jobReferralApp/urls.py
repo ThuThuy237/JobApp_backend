@@ -8,9 +8,10 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('post', views.PostViewSet)
 router.register('user', views.UserViewSet)
-router.register('Employer', views.EmployerViewSet)
-router.register('Tag', views.TagViewSet)
-
+router.register('employer', views.EmployerViewSet)
+router.register('tag', views.TagViewSet)
+router.register('category', views.CategoryViewSet)
+router.register('location', views.LocationViewSet)
 #/post/ GET
 #/post/ POST
 #/post/{post_id} GET
