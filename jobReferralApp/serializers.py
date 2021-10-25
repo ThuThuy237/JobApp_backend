@@ -4,9 +4,16 @@ from .models import *
 
 
 class UserSerializer(ModelSerializer):
+    type = serializers.SerializerMethodField('typeUser')
+
+    def typeUser(self, user):
+        try:
+            e = Employer.objects.get(user=user)
+            return 'recruiter'
+        except : return 'user'
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "username", "password", "avatar"]
+        fields = ["id", "first_name", "last_name", "email", "username", "password", "avatar", "type"]
         extra_kwargs = {
             'password': {'write_only': 'true'}
         }

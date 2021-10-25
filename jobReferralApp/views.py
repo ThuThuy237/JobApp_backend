@@ -1,13 +1,9 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.views import View
 from django.db.models import Q
-
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from .permission import *
 from .serializers import *
 from rest_framework.parsers import MultiPartParser, JSONParser
 
@@ -20,7 +16,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView, generics.CreateAPIView
      queryset = User.objects.filter(is_active=True)
      serializer_class = UserSerializer
      parser_classes = [MultiPartParser, JSONParser]
-     permission_classes = [permissions.IsAuthenticated]
+     permission_classes = [UserPermission]
 
      @action(methods=['get'], detail=False, url_path="current-user", url_name='get-current-user')
      def get_current_user(self, request):
@@ -42,12 +38,12 @@ class PostViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIVi
           category = self.request.query_params.get('category', None)
           location = self.request.query_params.get('location', None)
           salary = self.request.query_params.get('salary', None)
-
+          #
           if kw:
                queryset = queryset.filter(title__icontains=kw)
-          if category !='':
+          if category !='' and category:
                queryset = queryset.filter(category_id=category)
-          if location !='':
+          if location !='' and location:
                queryset = queryset.filter(location_id=location)
           if salary:
                queryset = queryset.filter(Q(salary__gte=salary) | Q(salary__gte=0))
