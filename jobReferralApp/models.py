@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from ckeditor.fields import RichTextField
 from phonenumber_field.modelfields import PhoneNumberField
+from django.db.models import Avg
 
 # Create your models here.
 
@@ -12,6 +13,8 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    class Meta:
+        ordering = ['id']
 
 class Category(models.Model):
     name = models.CharField(null=False, unique=True, max_length=255)
@@ -39,7 +42,6 @@ class Location(models.Model):
 
 class Post(models.Model):
     title = models.CharField(null=False, max_length=255)
-    subtitle = models.CharField(null=False, max_length=255)
     description = RichTextField()
     image = models.ImageField(upload_to='static/uploads/images/%Y/%m')
     created_date = models.DateTimeField(auto_now_add=True)
@@ -59,6 +61,10 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created_date']
 
+    def avg_rating(self):
+        point = self.applies.aggregate(Avg('stars'))  # trung bình điểm rating
+        return point['stars__avg']
+
 
 class Employer(models.Model):
     company_name = models.CharField(max_length=255, null= False)
@@ -66,7 +72,8 @@ class Employer(models.Model):
     contact_email = models.EmailField(null = False)
     contact_phone = PhoneNumberField(unique = True, null = False, blank = False)
     is_accepted = models.BooleanField(default=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="employer")
+    logo_image = models.ImageField(upload_to='static/uploads/images/%Y/%m')
 
     def __str__(self):
         return self.company_name
@@ -76,17 +83,35 @@ class Employer(models.Model):
 
 class JobApplicant(models.Model):
     cv = models.FileField(upload_to='static/uploads/cv/%Y/%m', null=True)
-    cover_letter = models.FileField(upload_to='uploads/coverLetter/%Y/%m', null=True)
+    cover_letter = models.FileField(upload_to='static/uploads/coverLetter/%Y/%m', null=True)
     phone = PhoneNumberField(unique = True, null = False, blank = False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    address = models.CharField(max_length=255, null= False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="jobApplicant", related_query_name="jobApplicant")
 
+
+    class Meta:
+        ordering = ['user']
 
 class Apply(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    applicant = models.ForeignKey(JobApplicant, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="applies")
+    applicant = models.ForeignKey(JobApplicant, related_name="applies", on_delete=models.CASCADE)
     date_apply = models.DateTimeField(auto_now_add=True)
-    status = models.BooleanField(default=False) #is complete
+    # status = models.BooleanField(default=False) #is complete
     stars = models.IntegerField(null=True)
+    comment = models.TextField(blank=True, null=True)
+
+    class Status(models.TextChoices):
+        PENDING = 'P'
+        ACCEPT = 'A'
+        REFUSE = 'R'
+    status = models.CharField(
+        max_length=1,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+
+    class Meta:
+        ordering = ['date_apply']
 
 
 class Tag(models.Model):
@@ -94,3 +119,5 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        ordering = ['name']

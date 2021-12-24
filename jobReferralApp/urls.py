@@ -12,6 +12,8 @@ router.register('employer', views.EmployerViewSet)
 router.register('tag', views.TagViewSet)
 router.register('category', views.CategoryViewSet)
 router.register('location', views.LocationViewSet)
+router.register('job-appliant', views.JobApplycantViewSet)
+router.register('apply', views.ApplyViewSet)
 #/post/ GET
 #/post/ POST
 #/post/{post_id} GET
