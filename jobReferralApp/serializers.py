@@ -41,6 +41,21 @@ class UserSerializer(ModelSerializer):
 
         return user
 
+class UserCreateSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email", "username", "password"]
+        extra_kwargs = {
+            'password': {'write_only': 'true'}
+        }
+
+    def create(self, validated_data):
+        user = User(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
+
 
 class LocationSerializers(serializers.RelatedField):
     def to_representation(self, value):
@@ -74,8 +89,10 @@ class EmployerSerializers(ModelSerializer):
             point = p.applies.aggregate(Avg('stars'))
             if point['stars__avg'] is not None:
                 avg.append(point['stars__avg'])
-
-        return reduce(lambda a, b: a + b, avg) / len(avg)
+        if len(avg) != 0:
+            return sum(avg) / len(avg)
+        # if not avg:
+        #     return reduce(lambda a, b: a + b, avg) / len(avg)
 
     class Meta:
         model = Employer
@@ -94,7 +111,9 @@ class EmployerItemSerializers(ModelSerializer):
             if point['stars__avg'] is not None:
                 avg.append(point['stars__avg'])
 
-        return reduce(lambda a, b: a + b, avg) / len(avg)
+        if len(avg) != 0:
+            return sum(avg) / len(avg)
+
 
     def f_count_post(self, employer):
         count = employer.post.filter(active=True).count()

@@ -18,6 +18,13 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView, generics.CreateAPIView
      parser_classes = [MultiPartParser, JSONParser]
      permission_classes = [UserPermission]
 
+     def create(self, request, *args, **kwargs):
+          serializer = UserCreateSerializer(data=request.data)
+          serializer.is_valid(raise_exception=True)
+          serializer.save()
+
+          return Response(serializer.data, status=status.HTTP_201_CREATED)
+
      @action(methods=['get'], detail=False, url_path="current-user", url_name='get-current-user')
      def get_current_user(self, request):
           return Response(self.serializer_class(request.user, context={"request": request}).data,
@@ -267,7 +274,7 @@ class JobApplycantViewSet(viewsets.ViewSet, generics.ListAPIView):
      def retrieve(self, request, *args, **kwargs):
           try:
                try:
-                    obj = JobApplicant.objects.get(user=request.user.id)
+                    obj = JobApplicant.objects.get_or_create(user=request.user.id)[0]
                     return Response(JobApplicationSerializers(obj).data, status=status.HTTP_200_OK)
                except:
                     return Response(data={"results":"Null"}, status=status.HTTP_400_BAD_REQUEST)
@@ -276,7 +283,7 @@ class JobApplycantViewSet(viewsets.ViewSet, generics.ListAPIView):
      @action(methods=['patch'], detail=False, url_path="upload-cv", url_name='upload-cv')
      def upload_cv(self, request):
           try:
-               jobApplicant = JobApplicant.objects.get(user=request.user)
+               jobApplicant = JobApplicant.objects.get_or_create(user=request.user)[0]
                if request.FILES['cv'] is not None:
                     jobApplicant.cv = request.FILES['cv']
                     print(request.POST.get('cv'))
@@ -292,7 +299,7 @@ class JobApplycantViewSet(viewsets.ViewSet, generics.ListAPIView):
      @action(methods=['patch'], detail=False, url_path="upload-cover-letter", url_name='upload-cover-letter')
      def upload_coverletter(self, request):
           try:
-               jobApplicant = JobApplicant.objects.get(user=request.user)
+               jobApplicant = JobApplicant.objects.get_or_create(user=request.user)[0]
                if request.FILES['coverLetter'] is not None:
                     jobApplicant.cover_letter = request.FILES['coverLetter']
                     jobApplicant.save()
@@ -308,7 +315,7 @@ class JobApplycantViewSet(viewsets.ViewSet, generics.ListAPIView):
      @action(methods=['patch'], detail=False, url_path="change-info", url_name='change-info')
      def change_info(self, request):
           try:
-               applicant = JobApplicant.objects.get(user=request.user)
+               applicant = JobApplicant.objects.get_or_create(user=request.user)[0]
                if request.data['phone'] is not None:
                     applicant.phone = request.data['phone']
                     applicant.save()
@@ -401,7 +408,7 @@ class ApplyViewSet(viewsets.ViewSet, generics.ListAPIView):
      @action(methods=['get'], detail=False, url_path="get-by-applicant", url_name='get-by-applicant')
      def get_apply(self, request):
           try:
-               jobApplicant = JobApplicant.objects.get(user=request.user)
+               jobApplicant = JobApplicant.objects.get_or_create(user=request.user)[0]
                queryset = Apply.objects.filter(applicant=jobApplicant)
                serializers = self.serializer_class
                return Response(serializers(queryset, many=True).data,
