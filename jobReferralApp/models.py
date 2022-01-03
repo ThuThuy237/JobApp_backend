@@ -84,8 +84,8 @@ class Employer(models.Model):
 class JobApplicant(models.Model):
     cv = models.FileField(upload_to='static/uploads/cv/%Y/%m', null=True)
     cover_letter = models.FileField(upload_to='static/uploads/coverLetter/%Y/%m', null=True)
-    phone = PhoneNumberField(unique = True, null = False, blank = False)
-    address = models.CharField(max_length=255, null= False)
+    phone = PhoneNumberField(unique = True, null = True, blank = True)
+    address = models.CharField(max_length=255, null= True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="jobApplicant", related_query_name="jobApplicant")
 
 

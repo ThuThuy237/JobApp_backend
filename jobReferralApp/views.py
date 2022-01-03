@@ -1,4 +1,9 @@
+from datetime import date
+
 from django.db.models import Q
+from django.shortcuts import render
+from django.views import View
+from django.views.generic import TemplateView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.decorators import action
@@ -384,7 +389,7 @@ class ApplyViewSet(viewsets.ViewSet, generics.ListAPIView):
                     apply.save()
                     return Response(data={"Results": "Rating Successfully"}, status=status.HTTP_200_OK)
                else:
-                    return Response(data={"Results": "Account not The account is not apply this post yet !"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(data={"Results": "The account is not apply this post yet !"}, status=status.HTTP_400_BAD_REQUEST)
           except:
                return Response(data={"Results": "Rating Failed"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -429,3 +434,166 @@ class ApplyViewSet(viewsets.ViewSet, generics.ListAPIView):
           except:
                return Response(data={"Result": "Have an error !"},
                                status=status.HTTP_400_BAD_REQUEST)
+
+
+class PostStatsView(TemplateView):
+     template_name = "post-stats.html"
+     def get_context_data(self, **kwargs):
+          context = super().get_context_data(**kwargs)
+          today = date.today()
+          context['total'] = Post.objects.count()
+          context['num_by_years'] = Post.objects.filter(created_date__year=today.year).count()
+          num_by_month = Post.objects.filter(created_date__year=today.year, created_date__month=today.month).count()
+          num_by_last_month = Post.objects.filter(created_date__year=today.year, created_date__month=(today.month - 1)).count()
+          context['num_by_month'] = num_by_month
+          if num_by_last_month != 0:
+               context['raise'] = int(num_by_month / num_by_last_month) * 100
+          else:
+               context['raise'] = "Increase"
+
+          posts =[]
+          switcher = {
+               1: 'January',
+               2: 'February',
+               3: 'March',
+               4: 'April',
+               5: 'May',
+               6: 'June',
+               7: 'July',
+               8: 'August',
+               9: 'September',
+               10: "October",
+               11: 'November',
+               12: 'December'
+          }
+
+          for m in range(1, 13):
+               posts.append( Post.objects.filter(created_date__month=m).count())
+          listCate = []
+          dataCate = []
+          for i in Category.objects.all():
+               dataCate.append(i.post.count())
+               listCate.append(i.name)
+          context['postStats'] = posts
+          context['listCatename'] = listCate
+          context['DataCate'] = dataCate
+          return context
+
+class UserStatsView(TemplateView):
+     template_name = "user-stats.html"
+
+     def get_context_data(self, **kwargs):
+          context = super().get_context_data(**kwargs)
+          today = date.today()
+          context['total'] = User.objects.count()
+          context['num_by_years'] = User.objects.filter(date_joined__year=today.year).count()
+          num_by_month = User.objects.filter(date_joined__year=today.year,
+                                             date_joined__month=today.month).count()
+          num_by_last_month = User.objects.filter(date_joined__year=today.year,
+                                                  date_joined__month=(today.month - 1)).count()
+          context['num_by_month'] = num_by_month
+          if num_by_last_month != 0:
+               context['raise'] = int(num_by_month / num_by_last_month) * 100
+          else:
+               context['raise'] = "Increase"
+
+          users = []
+          switcher = {
+               1: 'January',
+               2: 'February',
+               3: 'March',
+               4: 'April',
+               5: 'May',
+               6: 'June',
+               7: 'July',
+               8: 'August',
+               9: 'September',
+               10: "October",
+               11: 'November',
+               12: 'December'
+          }
+
+          for m in range(1, 13):
+               users.append(User.objects.filter(date_joined__month=m).count())
+
+          context['userStats'] = users
+          return context
+
+class RecruiterStatsView(TemplateView):
+     template_name = "recruiter-stats.html"
+
+     def get_context_data(self, **kwargs):
+          context = super().get_context_data(**kwargs)
+          today = date.today()
+          context['total'] = Employer.objects.all().count()
+          context['num_by_years'] = Post.objects.filter(created_date__year=today.year).count()
+          num_by_month = Post.objects.filter(created_date__year=today.year,
+                                             created_date__month=today.month).count()
+          num_by_last_month = Post.objects.filter(created_date__year=today.year,
+                                                  created_date__month=(today.month - 1)).count()
+          context['num_by_month'] = num_by_month
+          if num_by_last_month != 0:
+               context['raise'] = int(num_by_month / num_by_last_month) * 100
+          else:
+               context['raise'] = "Increase"
+
+          # posts = []
+          # switcher = {
+          #      1: 'January',
+          #      2: 'February',
+          #      3: 'March',
+          #      4: 'April',
+          #      5: 'May',
+          #      6: 'June',
+          #      7: 'July',
+          #      8: 'August',
+          #      9: 'September',
+          #      10: "October",
+          #      11: 'November',
+          #      12: 'December'
+          # }
+          #
+          # for m in range(1, 13):
+          #      posts.append(Post.objects.filter(created_date__month=m).count())
+          # context['postStats'] = posts
+          return context
+
+class ApplyStatsView(TemplateView):
+     template_name = "apply-stats.html"
+
+     def get_context_data(self, **kwargs):
+          context = super().get_context_data(**kwargs)
+          today = date.today()
+          context['total'] = Apply.objects.count()
+          context['num_by_years'] = Apply.objects.filter(date_apply__year=today.year).count()
+          num_by_month = Apply.objects.filter(date_apply__year=today.year,
+                                             date_apply__month=today.month).count()
+          num_by_last_month = Apply.objects.filter(date_apply__year=today.year,
+                                                  date_apply__month=(today.month - 1)).count()
+          context['num_by_month'] = num_by_month
+          if num_by_last_month != 0:
+               context['raise'] = int(num_by_month / num_by_last_month) * 100
+          else:
+               context['raise'] = "Increase"
+
+          applys = []
+          switcher = {
+               1: 'January',
+               2: 'February',
+               3: 'March',
+               4: 'April',
+               5: 'May',
+               6: 'June',
+               7: 'July',
+               8: 'August',
+               9: 'September',
+               10: "October",
+               11: 'November',
+               12: 'December'
+          }
+
+          for m in range(1, 13):
+               applys.append(Apply.objects.filter(date_apply__month=m).count())
+
+          context['applyStats'] = applys
+          return context

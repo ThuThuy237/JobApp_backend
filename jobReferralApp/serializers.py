@@ -6,16 +6,16 @@ from .models import *
 from django.db.models import Avg
 
 class JobApplicationSerializers(ModelSerializer):
-    # listApply = serializers.SerializerMethodField('list_apply')
-    #
-    # def list_apply(self, applicant):
-    #     request = self.context['request']
-    #     qs = applicant.applies.all()
-    #     serializer = ApplySerializers(qs, many=True, context={"request": request})
-    #     return serializer.data
+    listApply = serializers.SerializerMethodField('list_apply')
+
+    def list_apply(self, applicant):
+        request = self.context['request']
+        qs = applicant.applies.all()
+        serializer = ApplySerializers(qs, many=True, context={"request": request})
+        return serializer.data
     class Meta:
         model = JobApplicant
-        fields = [ "user", "cv", "cover_letter", "phone", "address"]
+        fields = [ "user", "cv", "cover_letter", "phone", "address", "listApply"]
 
 
 class UserSerializer(ModelSerializer):

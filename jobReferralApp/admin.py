@@ -71,10 +71,13 @@ class PostAppAdminSite(admin.AdminSite):
 
 admin_site = PostAppAdminSite('myjob')
 
-
+@admin.action(description='Active company')
+def make_company_active(modeladmin, request, queryset):
+    queryset.update(is_accepted=True)
 class EmployerAdmin(admin.ModelAdmin):
     inlines = (PostInline,)
     list_display = ["company_name", "is_accepted"]
+    actions = [make_company_active]
 
 
 # Register your models here.

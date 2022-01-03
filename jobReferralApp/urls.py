@@ -1,9 +1,10 @@
-from django.contrib import admin
-from django.urls import path, re_path, include
+from django.urls import path, include
+from django.views.generic import TemplateView
+
 from . import views
-from .admin import admin_site
 from rest_framework.routers import DefaultRouter
 
+from .views import *
 
 router = DefaultRouter()
 router.register('post', views.PostViewSet)
@@ -21,5 +22,9 @@ router.register('apply', views.ApplyViewSet)
 #/post/{post_id} DELETE
 urlpatterns = [
     path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls'))
+    path('api-auth/', include('rest_framework.urls')),
+    path('admin/stats/', PostStatsView.as_view(template_name='admin/post-stats.html')),
+    path('admin/stats/user', UserStatsView.as_view(template_name='admin/user-stats.html')),
+    path('admin/stats/hr', RecruiterStatsView.as_view(template_name='admin/recruiter-stats.html')),
+    path('admin/stats/apply', ApplyStatsView.as_view(template_name='admin/apply-stats.html')),
 ]
